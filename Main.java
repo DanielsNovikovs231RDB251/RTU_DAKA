@@ -1,4 +1,4 @@
-// 000RDB000 Jānis Programmētājs
+// 231RDB251 Daniels Novikovs
 // 111RDB111 Ilze Programmētāja
 
 import java.io.FileInputStream;
@@ -112,7 +112,7 @@ public class Main {
 	
 	public static void about() {
 		// TODO insert information about authors
-		System.out.println("000RDB000 Jānis Programmētājs");
+		System.out.println("231RDB251 Daniels Novikovs");
 		System.out.println("111RDB111 Ilze Programmētāja");
 	}
 }
