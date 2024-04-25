@@ -4,6 +4,7 @@
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.*;
 
 
 public class Main {
@@ -116,3 +117,77 @@ public class Main {
 		System.out.println("111RDB111 Ilze Programmētāja");
 	}
 }
+// Huffman coding start
+class Node implements Comparable<Node> {
+    char data;
+    int frequency;
+    Node left, right;
+
+    public Node(char data, int frequency) {
+        this.data = data;
+        this.frequency = frequency;
+        left = right = null;
+    }
+
+    public Node(int frequency, Node left, Node right) {
+        this.frequency = frequency;
+        this.left = left;
+        this.right = right;
+    }
+
+    @Override
+    public int compareTo(Node other) {
+        return this.frequency - other.frequency;
+    }
+}
+
+class HuffmanEncoder {
+    public static Map<Character, String> generateCodes(Node root) {
+        Map<Character, String> codes = new HashMap<>();
+        generateCodesHelper(root, "", codes);
+        return codes;
+    }
+
+    private static void generateCodesHelper(Node root, String code, Map<Character, String> codes) {
+        if (root == null)
+            return;
+
+        if (root.left == null && root.right == null) {
+            codes.put(root.data, code);
+            return;
+        }
+
+        generateCodesHelper(root.left, code + "0", codes);
+        generateCodesHelper(root.right, code + "1", codes);
+    }
+
+    public static String encode(String text) {
+        Map<Character, Integer> frequencies = new HashMap<>();
+        for (char c : text.toCharArray()) {
+            frequencies.put(c, frequencies.getOrDefault(c, 0) + 1);
+        }
+
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        for (Map.Entry<Character, Integer> entry : frequencies.entrySet()) {
+            pq.offer(new Node(entry.getKey(), entry.getValue()));
+        }
+
+        while (pq.size() > 1) {
+            Node left = pq.poll();
+            Node right = pq.poll();
+            Node combined = new Node(left.frequency + right.frequency, left, right);
+            pq.offer(combined);
+        }
+
+        Node root = pq.poll();
+        Map<Character, String> codes = generateCodes(root);
+
+        StringBuilder encodedText = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            encodedText.append(codes.get(c));
+        }
+
+        return encodedText.toString();
+    }
+}
+// Huffman coding end
