@@ -1,10 +1,12 @@
 // 231RDB251 Daniels Novikovs
 // 111RDB111 Ilze Programmētāja
-
+import java.util.HashMap;
+import java.util.Map;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.*;
+
 
 
 public class Main {
@@ -191,3 +193,24 @@ class HuffmanEncoder {
     }
 }
 // Huffman coding end
+// LZW coding start
+class LZWDictionary{
+	private Map<String, Integer> dictionary;
+
+	public LZWDictionary(){
+		dictionary = new HashMap<>();
+        for (int i = 0; i < 256; i++) {
+            dictionary.put("" + (char) i, i);
+        }
+    }
+    public Map<String, Integer> getDictionary() {
+        return dictionary;
+    }
+    public static void main(String[] args) {
+        LZWDictionary lzwDictionary = new LZWDictionary();
+        Map<String, Integer> dictionary = lzwDictionary.getDictionary();
+        for (Map.Entry<String, Integer> entry : dictionary.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+    }
+}
