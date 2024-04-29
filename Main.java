@@ -1,10 +1,7 @@
 // 231RDB251 Daniels Novikovs
 // 111RDB111 Ilze Programmētāja
-import java.util.HashMap;
-import java.util.Map;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Scanner;
 import java.util.*;
 
 
@@ -194,23 +191,48 @@ class HuffmanEncoder {
 }
 // Huffman coding end
 // LZW coding start
-class LZWDictionary{
-	private Map<String, Integer> dictionary;
+class LZWDictionary {
+private Map<String, String> dictionary;
+private int nextCode;
+private int maxCodeLength;
+private int currentCodeLength;
+private int currentCode; 
 
-	public LZWDictionary(){
-		dictionary = new HashMap<>();
-        for (int i = 0; i < 256; i++) {
-            dictionary.put("" + (char) i, i);
+public LZWDictionary(int maxCodeLength) {
+    dictionary = new HashMap<>();
+    for (int i = 0; i < 256; i++) {
+        String binaryString = String.format("%8s", Integer.toBinaryString(i)).replace(' ', '0');
+        dictionary.put(binaryString, binaryString);
+    }
+    this.nextCode = 256;
+    this.maxCodeLength = maxCodeLength;
+    this.currentCodeLength = 9;
+    this.currentCode = 256; 
+}
+
+public Map<String, String> getDictionary() {
+    return dictionary;
+}
+
+public void addToDictionary(String key) {
+if (nextCode < (1 << maxCodeLength)) {
+    String combinedKey = currentCode + key;
+    if (!dictionary.containsKey(combinedKey)) {
+        dictionary.put(combinedKey, String.format("%" + currentCodeLength + "s", Integer.toBinaryString(nextCode)).replace(' ', '0'));
+        nextCode++;
+        if (nextCode >= (1 << currentCodeLength)) {
+            currentCodeLength++;
         }
     }
-    public Map<String, Integer> getDictionary() {
-        return dictionary;
-    }
-    public static void main(String[] args) {
-        LZWDictionary lzwDictionary = new LZWDictionary();
-        Map<String, Integer> dictionary = lzwDictionary.getDictionary();
-        for (Map.Entry<String, Integer> entry : dictionary.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
+} else {
+    System.out.println("Словарь переполнен!");
+}
+}
+public static void main(String[] args) {
+    LZWDictionary lzwDictionary = new LZWDictionary(12); 
+    Map<String, String> dictionary = lzwDictionary.getDictionary();
+    for (Map.Entry<String, String> entry : dictionary.entrySet()) {
+        System.out.println(entry.getKey() + ": " + entry.getValue());
         }
     }
 }
