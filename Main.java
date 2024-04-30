@@ -196,7 +196,7 @@ class HuffmanEncoder {
 class LZWDictionary {
 public Map<byte[], String> dictionary;
 private int nextCode;
-private int maxCodeLength;
+private int maxLength;
 private int currentCodeLength;
 private int currentCode; 
 
@@ -208,7 +208,7 @@ public LZWDictionary(int maxCodeLength) {
 		dictionary.put(b, String.format("%8s", Integer.toBinaryString(i)).replace(' ', '0'));
     }
     this.nextCode = 256;
-    this.maxCodeLength = maxCodeLength;
+    this.maxLength = maxCodeLength;
     this.currentCodeLength = 9;
     this.currentCode = 256; 
 }
@@ -218,7 +218,7 @@ public Map<byte[], String> getDictionary() {
 }
 
 public void addToDictionary(String key) {
-	if (nextCode < (1 << maxCodeLength)) {
+	if (nextCode < (1 << maxLength)) {
         byte[] combinedKey = (currentCode + key).getBytes();
         if (!dictionary.containsKey(combinedKey)) {
             dictionary.put(combinedKey, String.format("%" + currentCodeLength + "s", Integer.toBinaryString(nextCode)).replace(' ', '0'));
