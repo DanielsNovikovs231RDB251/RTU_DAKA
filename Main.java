@@ -223,7 +223,7 @@ public void addToDictionary(String key) {
         if (!dictionary.containsKey(combinedKey)) {
             dictionary.put(combinedKey, String.format("%" + currentCodeLength + "s", Integer.toBinaryString(nextCode)).replace(' ', '0'));
             nextCode++;
-            if (nextCode >= (1 << currentCodeLength)) {
+            if (nextCode == (1 << currentCodeLength)) {
                 currentCodeLength++;
             }
         }
