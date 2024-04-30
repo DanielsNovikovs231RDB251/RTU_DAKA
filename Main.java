@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.Arrays;
 
 
 
@@ -194,46 +193,27 @@ class HuffmanEncoder {
 // Huffman coding end
 // LZW coding start
 class LZWDictionary {
-public Map<byte[], String> dictionary;
-private int nextCode;
-private int maxLength;
-private int currentCodeLength;
-private int currentCode; 
-
-public LZWDictionary(int maxCodeLength) {
-    dictionary = new HashMap<>();
-    for (int i = 0; i < 256; i++) {
-		byte[] b = new byte[1];
-		b[0] = (byte) i;
-		dictionary.put(b, String.format("%8s", Integer.toBinaryString(i)).replace(' ', '0'));
-    }
-    this.nextCode = 256;
-    this.maxLength = maxCodeLength;
-    this.currentCodeLength = 9;
-    this.currentCode = 256; 
-}
-
-public Map<byte[], String> getDictionary() {
-    return dictionary;
-}
-
-public void addToDictionary(String key) {
-	if (nextCode < (1 << maxLength)) {
-        byte[] combinedKey = (currentCode + key).getBytes();
-        if (!dictionary.containsKey(combinedKey)) {
-            dictionary.put(combinedKey, String.format("%" + currentCodeLength + "s", Integer.toBinaryString(nextCode)).replace(' ', '0'));
-            nextCode++;
-            if (nextCode == (1 << currentCodeLength)) {
-                currentCodeLength++;
-            }
-        }
-    }
-}
-public static void main(String[] args) {
-    LZWDictionary lzwDictionary = new LZWDictionary(12); 
-    Map<byte[], String> dictionary = lzwDictionary.getDictionary();
-    for (Entry<byte[], String> entry : dictionary.entrySet()) {
-        System.out.println(Arrays.toString(entry.getKey()) + ": " + entry.getValue());
-        }
-    }
+	public static List<Integer> encode(String text){
+		int dictSize = 256;
+		Map<String, Integer> dictionary = new HashMap<>();
+		for (int i = 0; i < dictSize; i++){
+			dictionary.put(String.valueOf((char)i), i);
+		}
+		String foundChars = "";
+		List<Integer> result = new ArrayList<>();
+		for (char character : text.toCharArray()){
+			String charsToAdd = foundChars + character;
+			if (dictionary.containsKey(charsToAdd)){
+				foundChars = charsToAdd;
+			} else {
+				result.add(dictionary.get(foundChars));
+				dictionary.put(charsToAdd, dictSize++);
+				foundChars = String.valueOf(character);
+			}
+		}
+		if (!foundChars.isEmpty()){
+			result.add(dictionary.get(foundChars));
+		}
+		return result;
+	}
 }
