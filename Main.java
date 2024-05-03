@@ -8,7 +8,8 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class Main {
-
+	private static Node root;
+	private static String encodedText;
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		String choiseStr;
@@ -59,13 +60,15 @@ public class Main {
 	public static void comp(String sourceFile, String resultFile) {
 		String fileData = fileReader(sourceFile);
 		EncodedData encodedData = HuffmanEncoder.encode(fileData);
-		String encodedText = encodedData.getEncodedText();
-		Node root = encodedData.getRoot();
+		encodedText = encodedData.getEncodedText();
+		root = encodedData.getRoot();
 		fileWriterBitSet(encodedText, resultFile);
 	}
 
 	public static void decomp(String sourceFile, String resultFile) {
-		// TODO: implement this method
+		String text = fileReader(sourceFile);
+		String decodedText = HuffmanEncoder.decode(text, root);
+		fileWriterText(decodedText, resultFile);
 	}
 
 	public static void size(String sourceFile) {
@@ -155,6 +158,16 @@ public class Main {
 			System.err.println("Error writing BitSet to file: " + e.getMessage());
 		}
 	}
+	public static void fileWriterText(String text, String resultfile){
+        try{
+            FileOutputStream fos = new FileOutputStream(resultfile);
+            fos.write(text.getBytes());
+            fos.close();
+        }catch (Exception e){
+            System.out.println("e");
+        }
+    }
+
 }
 
 // Huffman coding start
@@ -247,6 +260,24 @@ class HuffmanEncoder {
 
 		return new EncodedData(encodedText.toString(), root);
 	}
+	public static String decode(String encodedText, Node root) {
+        StringBuilder decodedText = new StringBuilder();
+        Node current = root;
+        for (int i = 0; i < encodedText.length(); i++) {
+            if (encodedText.charAt(i) == '0') {
+                current = current.left;
+            } else {
+                current = current.right;
+            }
+
+            if (current.left == null && current.right == null) {
+                decodedText.append(current.data);
+                current = root;
+            }
+        }
+
+        return decodedText.toString();
+    }
 }
 
 // Huffman coding end
