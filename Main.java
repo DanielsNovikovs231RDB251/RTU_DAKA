@@ -63,6 +63,7 @@ public class Main {
 		encodedText = encodedData.getEncodedText();
 		root = encodedData.getRoot();
 		fileWriterBitSet(encodedText, resultFile);
+		savetree(resultFile, root);
 	}
 
 	public static void decomp(String sourceFile, String resultFile) {
@@ -118,7 +119,7 @@ public class Main {
 	public static void about() {
 		// TODO insert information about authors
 		System.out.println("231RDB251 Daniels Novikovs");
-		System.out.println("111RDB111 Ilze Programmētāja");
+		System.out.println("231RDB295 Antons Denisovs");
 	}
 
 	public static String fileReader(String file) {
@@ -167,7 +168,11 @@ public class Main {
             System.out.println("e");
         }
     }
-
+	public static void savetree (String filename, Node root){
+		Map<String, Node> trees = new HashMap<>();
+		trees.put(filename, root);
+		System.out.println(trees);
+	}
 }
 
 // Huffman coding start
@@ -259,6 +264,9 @@ class HuffmanEncoder {
 		}
 
 		return new EncodedData(encodedText.toString(), root);
+
+
+
 	}
 	public static String decode(String encodedText, Node root) {
         StringBuilder decodedText = new StringBuilder();
@@ -279,6 +287,7 @@ class HuffmanEncoder {
         return decodedText.toString();
     }
 }
+
 
 // Huffman coding end
 // LZW coding start
