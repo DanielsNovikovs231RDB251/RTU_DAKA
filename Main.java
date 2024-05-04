@@ -65,11 +65,12 @@ public class Main {
 		root = encodedData.getRoot();
 		fileWriterBitSet(encodedText, resultFile);
 		savetree(resultFile, root);
+		System.out.println(root);
 	}
 
 	public static void decomp(String sourceFile, String resultFile) {
-		String text = fileReader(sourceFile);
-		Node root = gettree(sourceFile); // TODO добавил сюда дерево из мапа, но декодит хреново
+		String text = readBitFile(sourceFile);
+		root = gettree(sourceFile); // TODO добавил сюда дерево из мапа, но декодит хреново
 		String decodedText = HuffmanEncoder.decode(text, root);
 		fileWriterText(decodedText, resultFile);
 	}
@@ -123,6 +124,23 @@ public class Main {
 		System.out.println("231RDB251 Daniels Novikovs");
 		System.out.println("231RDB295 Antons Denisovs");
 	}
+	public static String readBitFile(String fileName){
+        StringBuilder bitSequence = new StringBuilder();
+        try{
+            FileInputStream fis = new FileInputStream(fileName);
+            byte[] bytes = fis.readAllBytes();
+            BitSet bitSet = BitSet.valueOf(bytes);
+
+            for (int i = 0; i < bitSet.length(); i++) {
+                char c = bitSet.get(i) ? '1' : '0';
+            bitSequence.append(c);
+            }
+            fis.close();
+        }catch (Exception e){
+            System.out.println("er1");
+        }
+        return bitSequence.toString();
+    }
 
 	public static String fileReader(String file) {
 		StringBuilder fileString = new StringBuilder();
@@ -132,6 +150,7 @@ public class Main {
 			while ((fileData = fileInputStream.read()) != -1) {
 				fileString.append((char) fileData);
 			}
+			fileInputStream.close();
 		} catch (Exception e) {
 			System.out.println("oshibka fila chtenie");
 		}
@@ -157,6 +176,7 @@ public class Main {
 			byte[] byteArray = bitSet.toByteArray();
 			fileOutputStream.write(byteArray);
 			System.out.println("BitSet successfully written to file.");
+			fileOutputStream.close();
 		} catch (IOException e) {
 			System.err.println("Error writing BitSet to file: " + e.getMessage());
 		}
@@ -268,12 +288,11 @@ class HuffmanEncoder {
 
 		return new EncodedData(encodedText.toString(), root);
 
-
-
 	}
 	public static String decode(String encodedText, Node root) {
         StringBuilder decodedText = new StringBuilder();
         Node current = root;
+		System.out.println(current);
         for (int i = 0; i < encodedText.length(); i++) {
             if (encodedText.charAt(i) == '0') {
                 current = current.left;
