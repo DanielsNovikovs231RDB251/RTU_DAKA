@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 public class Main {
 	private static Node root;
 	private static String encodedText;
+	private static Map<String, Node> trees = new HashMap<>();
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		String choiseStr;
@@ -68,6 +69,7 @@ public class Main {
 
 	public static void decomp(String sourceFile, String resultFile) {
 		String text = fileReader(sourceFile);
+		Node root = gettree(sourceFile); // TODO добавил сюда дерево из мапа, но декодит хреново
 		String decodedText = HuffmanEncoder.decode(text, root);
 		fileWriterText(decodedText, resultFile);
 	}
@@ -169,9 +171,10 @@ public class Main {
         }
     }
 	public static void savetree (String filename, Node root){
-		Map<String, Node> trees = new HashMap<>();
 		trees.put(filename, root);
-		System.out.println(trees);
+	}
+	public static Node gettree (String filename){
+		return trees.get(filename);
 	}
 }
 
