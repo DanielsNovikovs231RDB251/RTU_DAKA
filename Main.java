@@ -1,11 +1,16 @@
 
 // 231RDB251 Daniels Novikovs
 // 231RDB295 Antons Denisovs
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.*;
 import java.util.Map.Entry;
+import java.io.Serializable;
 
 public class Main {
 	private static Node root;
@@ -60,18 +65,20 @@ public class Main {
 
 	public static void comp(String sourceFile, String resultFile) {
 		String fileData = fileReader(sourceFile);
+		System.out.println(fileData);
 		EncodedData encodedData = HuffmanEncoder.encode(fileData);
 		encodedText = encodedData.getEncodedText();
-		root = encodedData.getRoot();
+		Map<Character, String> codeTable = encodedData.getCodeTable();
+		CodeTableManager.saveCodeTable(resultFile, codeTable);
 		fileWriterBitSet(encodedText, resultFile);
-		savetree(resultFile, root);
-		System.out.println(root);
+		
+		
 	}
 
 	public static void decomp(String sourceFile, String resultFile) {
 		String text = readBitFile(sourceFile);
-		root = gettree(sourceFile); // TODO добавил сюда дерево из мапа, но декодит хреново
-		String decodedText = HuffmanEncoder.decode(text, root);
+		Map<Character, String> retrievedCodeTable = CodeTableManager.getCodeTable(sourceFile);
+		String decodedText = HuffmanEncoder.decode(text, retrievedCodeTable);
 		fileWriterText(decodedText, resultFile);
 	}
 
@@ -118,6 +125,24 @@ public class Main {
 			return false;
 		}
 	}
+	public static void saveHuffmanTree(Node root, String fileName)  {
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName));
+            oos.writeObject(root);
+            oos.close();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+	public static Node loadHuffmanTree(String fileName)  {
+        try {
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName));
+            return (Node) ois.readObject();
+        }catch (Exception e){
+            System.out.println("1");
+        }
+        return null;
+    }
 
 	public static void about() {
 		// TODO insert information about authors
@@ -145,12 +170,14 @@ public class Main {
 	public static String fileReader(String file) {
 		StringBuilder fileString = new StringBuilder();
 		try {
-			FileInputStream fileInputStream = new FileInputStream(file);
-			int fileData;
-			while ((fileData = fileInputStream.read()) != -1) {
-				fileString.append((char) fileData);
-			}
-			fileInputStream.close();
+			FileInputStream fis = new FileInputStream(file);
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            String line;
+            while ((line = br.readLine()) != null) {
+                fileString.append(line).append("\n");
+            }
+            br.close();
 		} catch (Exception e) {
 			System.out.println("oshibka fila chtenie");
 		}
@@ -199,7 +226,18 @@ public class Main {
 }
 
 // Huffman coding start
-class Node implements Comparable<Node> {
+class CodeTableManager {
+    private static Map<String, Map<Character, String>> codeTables = new HashMap<>();
+
+    public static void saveCodeTable(String fileName, Map<Character, String> codeTable) {
+        codeTables.put(fileName, codeTable);
+    }
+
+    public static Map<Character, String> getCodeTable(String fileName) {
+        return codeTables.get(fileName);
+    }
+}
+class Node implements Comparable<Node>{
 	char data;
 	int frequency;
 	Node left, right;
@@ -223,21 +261,21 @@ class Node implements Comparable<Node> {
 }
 
 class EncodedData {
-	private String encodedText;
-	private Node root;
+    private String encodedText;
+    private Map<Character, String> codeTable;
 
-	public EncodedData(String encodedText, Node root) {
-		this.encodedText = encodedText;
-		this.root = root;
-	}
+    public EncodedData(String encodedText,Map<Character, String> codeTable) {
+        this.encodedText = encodedText;
+        this.codeTable = codeTable;
+    }
 
-	public String getEncodedText() {
-		return encodedText;
-	}
+    public String getEncodedText() {
+        return encodedText;
+    }
 
-	public Node getRoot() {
-		return root;
-	}
+    public Map<Character, String> getCodeTable() {
+        return codeTable;
+    }
 }
 
 class HuffmanEncoder {
@@ -286,26 +324,24 @@ class HuffmanEncoder {
 			encodedText.append(codes.get(c));
 		}
 
-		return new EncodedData(encodedText.toString(), root);
+		return new EncodedData(encodedText.toString(), codes);
 
 	}
-	public static String decode(String encodedText, Node root) {
-        StringBuilder decodedText = new StringBuilder();
-        Node current = root;
-		System.out.println(current);
-        for (int i = 0; i < encodedText.length(); i++) {
-            if (encodedText.charAt(i) == '0') {
-                current = current.left;
-            } else {
-                current = current.right;
-            }
+	public static String decode(String encodedText,Map<Character, String> codeTable ) {
+		StringBuilder decodedText = new StringBuilder();
+        StringBuilder currentCode = new StringBuilder();
 
-            if (current.left == null && current.right == null) {
-                decodedText.append(current.data);
-                current = root;
+        for (char bit : encodedText.toCharArray()) {
+            currentCode.append(bit);
+            for (Map.Entry<Character, String> entry : codeTable.entrySet()) {
+                if (entry.getValue().equals(currentCode.toString())) {
+                    decodedText.append(entry.getKey());
+                    currentCode.setLength(0);
+                    break;
+                }
             }
         }
-
+    
         return decodedText.toString();
     }
 }
