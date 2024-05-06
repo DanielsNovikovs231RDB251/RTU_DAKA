@@ -14,148 +14,148 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-// public class Main {
+public class Main {
 
-//     public static void main(String[] args) {
-//         Scanner sc = new Scanner(System.in);
-//         String command;
-//         String galvfail, izejfail, pirmfail, otrfail;
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String command;
+        String galvfail, izejfail, pirmfail, otrfail;
 
-//         loop: while (true) {
+        loop: while (true) {
 
-//             command = sc.next();
+            command = sc.next();
 
-//             switch (command) {
-//                 case "comp":
-//                     System.out.print("source file name: ");
-//                     galvfail = sc.next();
-//                     System.out.print("archive name: ");
-//                     izejfail = sc.next();
-//                     compress(galvfail, izejfail);
-//                     break;
-//                 case "decomp":
-//                     System.out.print("archive name: ");
-//                     galvfail = sc.next();
-//                     System.out.print("file name: ");
-//                     izejfail = sc.next();
-//                     decompress(galvfail, izejfail);
-//                     break;
-//                 case "size":
-//                     System.out.print("file name: ");
-//                     galvfail = sc.next();
-//                     filesize(galvfail);
-//                     break;
-//                 case "equal":
-//                     System.out.print("first file name: ");
-//                     pirmfail = sc.next();
-//                     System.out.print("second file name: ");
-//                     otrfail = sc.next();
-//                     System.out.println(equal(pirmfail, otrfail));
-//                     break;
-//                 case "about":
-//                     about();
-//                     break;
-//                 case "exit":
-//                     break loop;
-//             }
-//         }
+            switch (command) {
+                case "comp":
+                    System.out.print("source file name: ");
+                    galvfail = sc.next();
+                    System.out.print("archive name: ");
+                    izejfail = sc.next();
+                    compress(galvfail, izejfail);
+                    break;
+                case "decomp":
+                    System.out.print("archive name: ");
+                    galvfail = sc.next();
+                    System.out.print("file name: ");
+                    izejfail = sc.next();
+                    decompress(galvfail, izejfail);
+                    break;
+                case "size":
+                    System.out.print("file name: ");
+                    galvfail = sc.next();
+                    filesize(galvfail);
+                    break;
+                case "equal":
+                    System.out.print("first file name: ");
+                    pirmfail = sc.next();
+                    System.out.print("second file name: ");
+                    otrfail = sc.next();
+                    System.out.println(equal(pirmfail, otrfail));
+                    break;
+                case "about":
+                    about();
+                    break;
+                case "exit":
+                    break loop;
+            }
+        }
 
-//         sc.close();
-//     }
+        sc.close();
+    }
 
 
-// 	public static void compress(String galvfail, String izejfail) {
-//         try (FileInputStream in = new FileInputStream(galvfail);
-//                 FileOutputStream out = new FileOutputStream(izejfail)) {
+	public static void compress(String galvfail, String izejfail) {
+        try (FileInputStream in = new FileInputStream(galvfail);
+                FileOutputStream out = new FileOutputStream(izejfail)) {
 
-//             byte[] bfr = new byte[1024];
-//             int bread;
+            byte[] bfr = new byte[1024];
+            int bread;
 
-//             List<Byte> blist = new ArrayList<>();
+            List<Byte> blist = new ArrayList<>();
 
-//             while ((bread = in.read(bfr)) != -1) {
-//                 for (int i = 0; i < bread; i++) {
-//                     blist.add(bfr[i]);
-//                 }
-//             }
-//             byte[] bry = new byte[blist.size()];
-//             for (int i = 0; i < blist.size(); i++) {
-//                 bry[i] = blist.get(i);
-//             }
+            while ((bread = in.read(bfr)) != -1) {
+                for (int i = 0; i < bread; i++) {
+                    blist.add(bfr[i]);
+                }
+            }
+            byte[] bry = new byte[blist.size()];
+            for (int i = 0; i < blist.size(); i++) {
+                bry[i] = blist.get(i);
+            }
 
-//             List<Integer> encdat = LZWDict.encoder(bry);
+            List<Integer> encdat = LZWDict.encoder(bry);
 
-//             for (int code : encdat) {
-//                 out.write((code >> 8) & 0xFF); 
-//                 out.write(code & 0xFF); 
-//             }
-//         } catch (IOException e) {
-//             System.out.println(e.getMessage());
-//         }
-//     }
+            for (int code : encdat) {
+                out.write((code >> 8) & 0xFF); 
+                out.write(code & 0xFF); 
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
-// 	public static void decompress(String galvfail, String izejfail) {
-//         try (FileInputStream in = new FileInputStream(galvfail);
-//                 FileOutputStream out = new FileOutputStream(izejfail)) {
+	public static void decompress(String galvfail, String izejfail) {
+        try (FileInputStream in = new FileInputStream(galvfail);
+                FileOutputStream out = new FileOutputStream(izejfail)) {
 
-//             List<Integer> encdat = new ArrayList<>();
-//             int b;
+            List<Integer> encdat = new ArrayList<>();
+            int b;
 
-//             while ((b = in.read()) != -1) {
-//                 int code = (b << 8) | in.read(); 
-//                 encdat.add(code);
-//             }
+            while ((b = in.read()) != -1) {
+                int code = (b << 8) | in.read(); 
+                encdat.add(code);
+            }
 
-//             byte[] decdat = LZWDict.decoder(encdat);
+            byte[] decdat = LZWDict.decoder(encdat);
 
-//             out.write(decdat);
-//         } catch (IOException e) {
-//             System.out.println(e.getMessage());
-//         }
-//     }
+            out.write(decdat);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
-// 	public static void filesize(String galvfail) {
-//         try {
-//             FileInputStream f = new FileInputStream(galvfail);
-//             System.out.println("size: " + f.available());
-//             f.close();
-//         } catch (IOException ex) {
-//             System.out.println(ex.getMessage());
-//         }
-//     }
+	public static void filesize(String galvfail) {
+        try {
+            FileInputStream f = new FileInputStream(galvfail);
+            System.out.println("size: " + f.available());
+            f.close();
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
 
-// 	public static boolean equal(String galvfail, String izejfail) {
-//         try {
-//             FileInputStream fil1 = new FileInputStream(galvfail);
-//             FileInputStream fil2 = new FileInputStream(izejfail);
-//             int b1, b2;
-//             byte[] bfr1 = new byte[1000];
-//             byte[] bfr2 = new byte[1000];
-//             do {
-//                 b1 = fil1.read(bfr1);
-//                 b2 = fil2.read(bfr2);
-//                 if (b1 != b2) {
-//                     fil1.close();
-//                     fil2.close();
-//                     return false;
-//                 }
-//                 for (int i = 0; i < b1; i++) {
-//                     if (bfr1[i] != bfr2[i]) {
-//                         fil1.close();
-//                         fil2.close();
-//                         return false;
-//                     }
+	public static boolean equal(String galvfail, String izejfail) {
+        try {
+            FileInputStream fil1 = new FileInputStream(galvfail);
+            FileInputStream fil2 = new FileInputStream(izejfail);
+            int b1, b2;
+            byte[] bfr1 = new byte[1000];
+            byte[] bfr2 = new byte[1000];
+            do {
+                b1 = fil1.read(bfr1);
+                b2 = fil2.read(bfr2);
+                if (b1 != b2) {
+                    fil1.close();
+                    fil2.close();
+                    return false;
+                }
+                for (int i = 0; i < b1; i++) {
+                    if (bfr1[i] != bfr2[i]) {
+                        fil1.close();
+                        fil2.close();
+                        return false;
+                    }
 
-//                 }
-//             } while (!(b1 == -1 && b2 == -1));
-//             fil1.close();
-//             fil2.close();
-//             return true;
-//         } catch (IOException ex) {
-//             System.out.println(ex.getMessage());
-//             return false;
-//         }
-//     }
+                }
+            } while (!(b1 == -1 && b2 == -1));
+            fil1.close();
+            fil2.close();
+            return true;
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+            return false;
+        }
+    }
 	public static void saveHuffmanTree(Node root, String fileName)  {
         try {
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName));
@@ -175,10 +175,10 @@ import java.nio.file.Paths;
         return null;
     }
 
-	// public static void about() {
-    //     System.out.println("231RDB251 Daniels Novikovs");
-    //     System.out.println("231RDB335 Kirills Bogdanovs");
-    // }
+	public static void about() {
+        System.out.println("231RDB251 Daniels Novikovs");
+        System.out.println("231RDB335 Kirills Bogdanovs");
+    }
 	public static String readBitFile(String fileName){
         StringBuilder bitSequence = new StringBuilder();
         try{
@@ -315,142 +315,154 @@ class HuffmanEncoder {
 	}
 
 	public static EncodedData encode(String text) {
-		Map<Character, Integer> frequencies = new HashMap<>();
-		for (char c : text.toCharArray()) {
-			frequencies.put(c, frequencies.getOrDefault(c, 0) + 1);
-		}
+        try{
+            Map<Character, Integer> frequencies = new HashMap<>();
+            for (char c : text.toCharArray()) {
+                frequencies.put(c, frequencies.getOrDefault(c, 0) + 1);
+            }
 
-		PriorityQueue<Node> pq = new PriorityQueue<>();
-		for (Map.Entry<Character, Integer> entry : frequencies.entrySet()) {
-			pq.offer(new Node(entry.getKey(), entry.getValue()));
-		}
+            PriorityQueue<Node> pq = new PriorityQueue<>();
+            for (Map.Entry<Character, Integer> entry : frequencies.entrySet()) {
+                pq.offer(new Node(entry.getKey(), entry.getValue()));
+            }
 
-		while (pq.size() > 1) {
-			Node left = pq.poll();
-			Node right = pq.poll();
-			Node combined = new Node(left.frequency + right.frequency, left, right);
-			pq.offer(combined);
-		}
+            while (pq.size() > 1) {
+                Node left = pq.poll();
+                Node right = pq.poll();
+                Node combined = new Node(left.frequency + right.frequency, left, right);
+                pq.offer(combined);
+            }
 
-		Node root = pq.poll();
-		Map<Character, String> codes = generateCodes(root);
+            Node root = pq.poll();
+            Map<Character, String> codes = generateCodes(root);
 
-		StringBuilder encodedText = new StringBuilder();
-		for (char c : text.toCharArray()) {
-			encodedText.append(codes.get(c));
-		}
+            StringBuilder encodedText = new StringBuilder();
+            for (char c : text.toCharArray()) {
+                encodedText.append(codes.get(c));
+            }
 
-		return new EncodedData(encodedText.toString(), codes);
+            return new EncodedData(encodedText.toString(), codes);
 
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage);
+        }
+		
 	}
 	public static String decode(String encodedText,Map<Character, String> codeTable ) {
-		StringBuilder decodedText = new StringBuilder();
-        StringBuilder currentCode = new StringBuilder();
+        try{
+            StringBuilder decodedText = new StringBuilder();
+            StringBuilder currentCode = new StringBuilder();
 
-        for (char bit : encodedText.toCharArray()) {
-            currentCode.append(bit);
-            for (Map.Entry<Character, String> entry : codeTable.entrySet()) {
-                if (entry.getValue().equals(currentCode.toString())) {
-                    decodedText.append(entry.getKey());
-                    currentCode.setLength(0);
-                    break;
+            for (char bit : encodedText.toCharArray()) {
+                currentCode.append(bit);
+                for (Map.Entry<Character, String> entry : codeTable.entrySet()) {
+                    if (entry.getValue().equals(currentCode.toString())) {
+                        decodedText.append(entry.getKey());
+                        currentCode.setLength(0);
+                        break;
+                    }
                 }
             }
+            return decodedText.toString();
         }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+            return null; //TODO проверить
+        }
+		
     
-        return decodedText.toString();
+
     }
 }
-
-
 // Huffman coding end
 // LZW coding start
-// class LZWDict {
-//     public static List<Integer> encoder(byte[] dat) {
-//         if (dat.length == 0) {
-//             return new ArrayList<>();
-//         }
-//         int maxlength = 256;
-//         Map<List<Byte>, Integer> dict = new HashMap<>();
-//         for (int i = 0; i < maxlength; i++) {
-//             List<Byte> seq = new ArrayList<>();
-//             seq.add((byte) i);
-//             dict.put(seq, i);
-//         }
+class LZWDict {
+    public static List<Integer> encoder(byte[] dat) {
+        if (dat.length == 0) {
+            return new ArrayList<>();
+        }
+        int maxlength = 256;
+        Map<List<Byte>, Integer> dict = new HashMap<>();
+        for (int i = 0; i < maxlength; i++) {
+            List<Byte> seq = new ArrayList<>();
+            seq.add((byte) i);
+            dict.put(seq, i);
+        }
 
-//         List<Byte> tagseq = new ArrayList<>();
-//         List<Integer> encdat = new ArrayList<>();
+        List<Byte> tagseq = new ArrayList<>();
+        List<Integer> encdat = new ArrayList<>();
 
-//         for (byte nextbyte : dat) {
-//             List<Byte> newseq = new ArrayList<>(tagseq);
-//             newseq.add(nextbyte);
+        for (byte nextbyte : dat) {
+            List<Byte> newseq = new ArrayList<>(tagseq);
+            newseq.add(nextbyte);
 
-//             if (dict.containsKey(newseq)) {
-//                 tagseq = newseq;
-//             } else {
-//                 encdat.add(dict.get(tagseq));
-//                 dict.put(newseq, dict.size());
-//                 tagseq = new ArrayList<>(Arrays.asList(nextbyte));
-//             }
-//         }
+            if (dict.containsKey(newseq)) {
+                tagseq = newseq;
+            } else {
+                encdat.add(dict.get(tagseq));
+                dict.put(newseq, dict.size());
+                tagseq = new ArrayList<>(Arrays.asList(nextbyte));
+            }
+        }
 
-//         if (tagseq.size()> 0) {
-//             encdat.add(dict.get(tagseq));
-//         }
+        if (tagseq.size()> 0) {
+            encdat.add(dict.get(tagseq));
+        }
 
-//         return encdat;
-//     }
+        return encdat;
+    }
 
-//     public static byte[] decoder(List<Integer> enctext) {
-//         if (enctext.size() == 0) {
-//             return new byte[]{};
-//         }
+    public static byte[] decoder(List<Integer> enctext) {
+        if (enctext.size() == 0) {
+            return new byte[]{};
+        }
 
-//         Map<Integer, List<Byte>> dictionary = new HashMap<>();
-//         int maxlength = 256;
-//         for (int i = 0; i < maxlength; i++) {
-//             List<Byte> seq = new ArrayList<>();
-//             seq.add((byte) i);
-//             dictionary.put(i, seq);
-//         }
+        Map<Integer, List<Byte>> dictionary = new HashMap<>();
+        int maxlength = 256;
+        for (int i = 0; i < maxlength; i++) {
+            List<Byte> seq = new ArrayList<>();
+            seq.add((byte) i);
+            dictionary.put(i, seq);
+        }
 
-//         List<Byte> result = new ArrayList<>();
-//         int pagkod = enctext.get(0);
-//         result.addAll(dictionary.get(pagkod));
+        List<Byte> result = new ArrayList<>();
+        int pagkod = enctext.get(0);
+        result.addAll(dictionary.get(pagkod));
 
-//         for (int i = 1; i < enctext.size(); i++) {
-//             int currentCode = enctext.get(i);
-//             List<Byte> ieej = dictionary.getOrDefault(currentCode, new ArrayList<>(dictionary.get(pagkod)));
-//             if (currentCode == dictionary.size()) {
-//                 ieej.add(dictionary.get(pagkod).get(0));
-//             } else if (!dictionary.containsKey(currentCode)) {
-//                 throw new IllegalArgumentException("Bad compressed code");
-//             }
+        for (int i = 1; i < enctext.size(); i++) {
+            int currentCode = enctext.get(i);
+            List<Byte> ieej = dictionary.getOrDefault(currentCode, new ArrayList<>(dictionary.get(pagkod)));
+            if (currentCode == dictionary.size()) {
+                ieej.add(dictionary.get(pagkod).get(0));
+            } else if (!dictionary.containsKey(currentCode)) {
+                throw new IllegalArgumentException("Bad compressed code");
+            }
 
-//             List<Byte> pagkodBytes = dictionary.get(pagkod);
-//             byte[] jauniej = Arrays.copyOf(tobytearray(pagkodBytes), pagkodBytes.size() + 1);
-//             jauniej[jauniej.length - 1] = ieej.get(0);
-//             result.addAll(ieej);
-//             dictionary.put(dictionary.size(), tobytelist(jauniej));
-//             pagkod = currentCode;
-//         }
-//         return tobytearray(result);
-//     }
+            List<Byte> pagkodBytes = dictionary.get(pagkod);
+            byte[] jauniej = Arrays.copyOf(tobytearray(pagkodBytes), pagkodBytes.size() + 1);
+            jauniej[jauniej.length - 1] = ieej.get(0);
+            result.addAll(ieej);
+            dictionary.put(dictionary.size(), tobytelist(jauniej));
+            pagkod = currentCode;
+        }
+        return tobytearray(result);
+    }
 
-//     private static byte[] tobytearray(List<Byte> list) {
-//         byte[] ret = new byte[list.size()];
-//         for (int i = 0; i < ret.length; i++) {
-//             ret[i] = list.get(i);
-//         }
-//         return ret;
-//     }
+    private static byte[] tobytearray(List<Byte> list) {
+        byte[] ret = new byte[list.size()];
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = list.get(i);
+        }
+        return ret;
+    }
 
-//     private static List<Byte> tobytelist(byte[] array) {
-//         List<Byte> list = new ArrayList<>();
-//         for (byte b : array) {
-//             list.add(b);
-//         }
-//         return list;
-//     }
-// }
+    private static List<Byte> tobytelist(byte[] array) {
+        List<Byte> list = new ArrayList<>();
+        for (byte b : array) {
+            list.add(b);
+        }
+        return list;
+    }
+}
 // LZW coding end
