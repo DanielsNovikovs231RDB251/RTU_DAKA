@@ -1,6 +1,8 @@
 
 // 231RDB251 Daniels Novikovs
 // 231RDB295 Antons Denisovs
+// 231RDB273 Anastasija Praksina
+// 231RDB335 Kirills Bogdanovs
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -178,6 +180,8 @@ public class Main {
 	public static void about() {
         System.out.println("231RDB251 Daniels Novikovs");
         System.out.println("231RDB335 Kirills Bogdanovs");
+        System.out.println("231RDB295 Antons Denisovs")
+        System.out.println("231RDB273 Anastasija Praksina")
     }
 	public static String readBitFile(String fileName){
         StringBuilder bitSequence = new StringBuilder();
