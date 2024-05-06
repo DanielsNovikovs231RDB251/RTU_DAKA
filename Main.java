@@ -3,20 +3,17 @@
 // 231RDB295 Antons Denisovs
 // 231RDB273 Anastasija Praksina
 // 231RDB335 Kirills Bogdanovs
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.*;
-import java.util.Map.Entry;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Main {
+
+    private static String encodedText;
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -30,23 +27,39 @@ public class Main {
             switch (command) {
                 case "comp":
                     // LZW encode start
-                    System.out.println("LZW encode");
+                    //System.out.println("LZW encode");
+                    //System.out.print("source file name: ");
+                    //sourceFile = sc.next();
+                    //System.out.print("archive name: ");
+                    //resultFile = sc.next();
+                    //compressLZW(sourceFile, resultFile);
+                    // LZW encode end
+                    // Huffman encode start
+                    System.out.println("Huffman encode");
                     System.out.print("source file name: ");
                     sourceFile = sc.next();
                     System.out.print("archive name: ");
                     resultFile = sc.next();
-                    compress(sourceFile, resultFile);
-                    // LZW encode end
+                    compressHuffman(sourceFile, resultFile);
+                    // Huffman encode end
                     break;
                 case "decomp":
                     // LZW decode start
-                    System.out.println("LZW decode");
+                   // System.out.println("LZW decode");
+                    //System.out.print("archive name: ");
+                    //sourceFile = sc.next();
+                    //System.out.print("file name: ");
+                    //resultFile = sc.next();
+                    //decompressLZW(sourceFile, resultFile);
+                    // LZW decode end
+                    // Huffman decode start
+                    System.out.println("Huffman decode");
                     System.out.print("archive name: ");
                     sourceFile = sc.next();
                     System.out.print("file name: ");
                     resultFile = sc.next();
-                    decompress(sourceFile, resultFile);
-                    // LZW decode end
+                    decompressHuffman(sourceFile, resultFile);
+                    // Huffman decode end
                     break;
                 case "size":
                     System.out.print("file name: ");
@@ -71,11 +84,28 @@ public class Main {
         sc.close();
     }
 
+    public static void compressHuffman(String sourceFile, String resultFile) {
+        String fileData = fileReader(sourceFile);
+        EncodedData encodedData = HuffmanEncoder.encode(fileData);
+        encodedText = encodedData.getEncodedText();
+        Map<Character, String> codeTable = encodedData.getCodeTable();
+        CodeTableManager.saveCodeTable(resultFile, codeTable);
+        fileWriterBitSet(encodedText, resultFile);
+        int numBitsToRead = encodedText.length();
+        FileManager.saveFileData(resultFile, numBitsToRead);
+    }
 
-	public static void compress(String sourceFile, String resultFile) {
+    public static void decompressHuffman(String sourceFile, String resultFile) {
+        String text = readBitFile(sourceFile);
+        Map<Character, String> retrievedCodeTable = CodeTableManager.getCodeTable(sourceFile);
+        String decodedText = HuffmanEncoder.decode(text, retrievedCodeTable);
+        fileWriterText(decodedText, resultFile);
+    }
+
+    public static void compressLZW(String sourceFile, String resultFile) {
         try {
             FileInputStream in = new FileInputStream(sourceFile);
-                FileOutputStream out = new FileOutputStream(resultFile);
+            FileOutputStream out = new FileOutputStream(resultFile);
 
             byte[] bfr = new byte[1024];
             int bread;
@@ -95,8 +125,8 @@ public class Main {
             List<Integer> encdat = LZWDict.encoder(bry);
 
             for (int code : encdat) {
-                out.write((code >> 8) & 0xFF); 
-                out.write(code & 0xFF); 
+                out.write((code >> 8) & 0xFF);
+                out.write(code & 0xFF);
             }
             in.close();
             out.close();
@@ -105,16 +135,16 @@ public class Main {
         }
     }
 
-	public static void decompress(String sourceFile, String resultFile) {
+    public static void decompressLZW(String sourceFile, String resultFile) {
         try {
             FileInputStream in = new FileInputStream(sourceFile);
-                FileOutputStream out = new FileOutputStream(resultFile);
+            FileOutputStream out = new FileOutputStream(resultFile);
 
             List<Integer> encdat = new ArrayList<>();
             int b;
 
             while ((b = in.read()) != -1) {
-                int code = (b << 8) | in.read(); 
+                int code = (b << 8) | in.read();
                 encdat.add(code);
             }
 
@@ -128,7 +158,7 @@ public class Main {
         }
     }
 
-	public static void filesize(String galvfail) {
+    public static void filesize(String galvfail) {
         try {
             FileInputStream f = new FileInputStream(galvfail);
             System.out.println("size: " + f.available());
@@ -138,7 +168,7 @@ public class Main {
         }
     }
 
-	public static boolean equal(String sourceFile, String resultFile) {
+    public static boolean equal(String sourceFile, String resultFile) {
         try {
             FileInputStream fil1 = new FileInputStream(sourceFile);
             FileInputStream fil2 = new FileInputStream(resultFile);
@@ -171,75 +201,88 @@ public class Main {
         }
     }
 
-	public static void about() {
+    public static void about() {
         System.out.println("231RDB251 Daniels Novikovs");
         System.out.println("231RDB335 Kirills Bogdanovs");
         System.out.println("231RDB295 Antons Denisovs");
         System.out.println("231RDB273 Anastasija Praksina");
     }
-	public static String readBitFile(String fileName){
+
+    public static String readBitFile(String fileName) {
         StringBuilder bitSequence = new StringBuilder();
-        try{
+        try {
             FileInputStream fis = new FileInputStream(fileName);
             byte[] bytes = fis.readAllBytes();
             BitSet bitSet = BitSet.valueOf(bytes);
-
-            for (int i = 0; i < bitSet.length(); i++) {
+            int numBitsToRead = FileManager.getFileValue(fileName);
+            for (int i = 0; i < numBitsToRead; i++) {
                 char c = bitSet.get(i) ? '1' : '0';
-            bitSequence.append(c);
+                bitSequence.append(c);
             }
             fis.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+        System.out.println(bitSequence.toString());
         return bitSequence.toString();
     }
 
-	public static String fileReader(String file) {
-		try {
+    public static String fileReader(String file) {
+        try {
             return Files.readString(Paths.get(file), StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
-		}
-	}
+        }
+    }
 
-	public static void fileWriterBitSet(String encodedText, String outFile) {
-		BitSet bitSet = new BitSet(encodedText.length());
+    public static void fileWriterBitSet(String encodedText, String outFile) {
+        BitSet bitSet = new BitSet(encodedText.length());
 
-		for (int i = 0; i < encodedText.length(); i++) {
-			char c = encodedText.charAt(i);
-			if (c == '1') {
-				bitSet.set(i, true);
-			} else {
-				bitSet.set(i, false);
-			}
-		}
+        for (int i = 0; i < encodedText.length(); i++) {
+            char c = encodedText.charAt(i);
+            if (c == '1') {
+                bitSet.set(i, true);
+            } else {
+                bitSet.set(i, false);
+            }
+        }
 
-		String fileName = outFile;
+        String fileName = outFile;
 
-		try {
-			FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-			byte[] byteArray = bitSet.toByteArray();
-			fileOutputStream.write(byteArray);
-			System.out.println("BitSet successfully written to file.");
-			fileOutputStream.close();
-		} catch (IOException e) {
-			System.err.println("Error writing BitSet to file: " + e.getMessage());
-		}
-	}
-	public static void fileWriterText(String text, String resultfile){
-        try{
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+            byte[] byteArray = bitSet.toByteArray();
+            fileOutputStream.write(byteArray);
+            fileOutputStream.close();
+        } catch (IOException e) {
+            System.err.println("Error writing BitSet to file: " + e.getMessage());
+        }
+    }
+
+    public static void fileWriterText(String text, String resultfile) {
+        try {
             FileOutputStream fos = new FileOutputStream(resultfile);
             fos.write(text.getBytes());
             fos.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 }
 
 // Huffman coding start
+class FileManager {
+    private static Map<String, Integer> fileDataMap = new HashMap<>();
+
+    public static void saveFileData(String fileName, int value) {
+        fileDataMap.put(fileName, value);
+    }
+
+    public static int getFileValue(String fileName) {
+        return fileDataMap.getOrDefault(fileName, 0); 
+    }
+}
 class CodeTableManager {
     private static Map<String, Map<Character, String>> codeTables = new HashMap<>();
 
@@ -251,34 +294,35 @@ class CodeTableManager {
         return codeTables.get(fileName);
     }
 }
-class Node implements Comparable<Node>{
-	char data;
-	int frequency;
-	Node left, right;
 
-	public Node(char data, int frequency) {
-		this.data = data;
-		this.frequency = frequency;
-		left = right = null;
-	}
+class Node implements Comparable<Node> {
+    char data;
+    int frequency;
+    Node left, right;
 
-	public Node(int frequency, Node left, Node right) {
-		this.frequency = frequency;
-		this.left = left;
-		this.right = right;
-	}
+    public Node(char data, int frequency) {
+        this.data = data;
+        this.frequency = frequency;
+        left = right = null;
+    }
 
-	@Override
-	public int compareTo(Node other) {
-		return this.frequency - other.frequency;
-	}
+    public Node(int frequency, Node left, Node right) {
+        this.frequency = frequency;
+        this.left = left;
+        this.right = right;
+    }
+
+    @Override
+    public int compareTo(Node other) {
+        return this.frequency - other.frequency;
+    }
 }
 
 class EncodedData {
     private String encodedText;
     private Map<Character, String> codeTable;
 
-    public EncodedData(String encodedText,Map<Character, String> codeTable) {
+    public EncodedData(String encodedText, Map<Character, String> codeTable) {
         this.encodedText = encodedText;
         this.codeTable = codeTable;
     }
@@ -293,66 +337,64 @@ class EncodedData {
 }
 
 class HuffmanEncoder {
-	public static Map<Character, String> generateCodes(Node root) {
-		Map<Character, String> codes = new HashMap<>();
-		generateCodesHelper(root, "", codes);
-		return codes;
-	}
+    public static Map<Character, String> generateCodes(Node root) {
+        Map<Character, String> codes = new HashMap<>();
+        generateCodesHelper(root, "", codes);
+        return codes;
+    }
 
-	private static void generateCodesHelper(Node root, String code, Map<Character, String> codes) {
-		if (root == null)
-			return;
+    private static void generateCodesHelper(Node root, String code, Map<Character, String> codes) {
+        if (root == null)
+            return;
 
-		if (root.left == null && root.right == null) {
-			codes.put(root.data, code);
-			return;
-		}
-
-		generateCodesHelper(root.left, code + "0", codes);
-		generateCodesHelper(root.right, code + "1", codes);
-	}
-
-	public static EncodedData encode(String text) {
-        try{
-            Map<Character, Integer> frequencies = new HashMap<>();
-            for (char c : text.toCharArray()) {
-                frequencies.put(c, frequencies.getOrDefault(c, 0) + 1);
-            }
-
-            PriorityQueue<Node> pq = new PriorityQueue<>();
-            for (Map.Entry<Character, Integer> entry : frequencies.entrySet()) {
-                pq.offer(new Node(entry.getKey(), entry.getValue()));
-            }
-
-            while (pq.size() > 1) {
-                Node left = pq.poll();
-                Node right = pq.poll();
-                Node combined = new Node(left.frequency + right.frequency, left, right);
-                pq.offer(combined);
-            }
-
-            Node root = pq.poll();
-            Map<Character, String> codes = generateCodes(root);
-
-            StringBuilder encodedText = new StringBuilder();
-            for (char c : text.toCharArray()) {
-                encodedText.append(codes.get(c));
-            }
-
-            return new EncodedData(encodedText.toString(), codes);
-
+        if (root.left == null && root.right == null) {
+            codes.put(root.data, code);
+            return;
         }
-        catch(Exception e){
-            System.out.println(e.getMessage);
+
+        generateCodesHelper(root.left, code + "0", codes);
+        generateCodesHelper(root.right, code + "1", codes);
+    }
+
+    public static EncodedData encode(String text) {
+        Map<Character, Integer> frequencies = new HashMap<>();
+        for (char c : text.toCharArray()) {
+            frequencies.put(c, frequencies.getOrDefault(c, 0) + 1);
         }
-		
-	}
-	public static String decode(String encodedText,Map<Character, String> codeTable ) {
-        try{
+
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        for (Map.Entry<Character, Integer> entry : frequencies.entrySet()) {
+            pq.offer(new Node(entry.getKey(), entry.getValue()));
+        }
+
+        while (pq.size() > 1) {
+            Node left = pq.poll();
+            Node right = pq.poll();
+            Node combined = new Node(left.frequency + right.frequency, left, right);
+            pq.offer(combined);
+        }
+
+        Node root = pq.poll();
+        Map<Character, String> codes = generateCodes(root);
+
+        StringBuilder encodedText = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            encodedText.append(codes.get(c));
+        }
+
+        return new EncodedData(encodedText.toString(), codes);
+
+    }
+
+    public static String decode(String encodedText, Map<Character, String> codeTable) {
+        try {
+            
             StringBuilder decodedText = new StringBuilder();
             StringBuilder currentCode = new StringBuilder();
-
-            for (char bit : encodedText.toCharArray()) {
+            char[] encodedChars = encodedText.toCharArray();
+            int length = encodedChars.length;
+            for (int i = 0; i < length; i++) {
+                char bit = encodedChars[i];
                 currentCode.append(bit);
                 for (Map.Entry<Character, String> entry : codeTable.entrySet()) {
                     if (entry.getValue().equals(currentCode.toString())) {
@@ -362,17 +404,16 @@ class HuffmanEncoder {
                     }
                 }
             }
+           
             return decodedText.toString();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            return null; //TODO проверить
+            return null; 
         }
-		
-    
 
     }
 }
+
 // Huffman coding end
 // LZW coding start
 class LZWDict {
@@ -404,7 +445,7 @@ class LZWDict {
             }
         }
 
-        if (tagseq.size()> 0) {
+        if (tagseq.size() > 0) {
             encdat.add(dict.get(tagseq));
         }
 
@@ -413,7 +454,7 @@ class LZWDict {
 
     public static byte[] decoder(List<Integer> enctext) {
         if (enctext.size() == 0) {
-            return new byte[]{};
+            return new byte[] {};
         }
 
         Map<Integer, List<Byte>> dictionary = new HashMap<>();
