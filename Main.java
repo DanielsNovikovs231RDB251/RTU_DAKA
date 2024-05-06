@@ -10,12 +10,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.*;
 import java.util.Map.Entry;
-import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Main {
-	private static Node root;
 	private static String encodedText;
-	private static Map<String, Node> trees = new HashMap<>();
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		String choiseStr;
@@ -168,20 +168,12 @@ public class Main {
     }
 
 	public static String fileReader(String file) {
-		StringBuilder fileString = new StringBuilder();
 		try {
-			FileInputStream fis = new FileInputStream(file);
-            InputStreamReader isr = new InputStreamReader(fis);
-            BufferedReader br = new BufferedReader(isr);
-            String line;
-            while ((line = br.readLine()) != null) {
-                fileString.append(line).append("\n");
-            }
-            br.close();
-		} catch (Exception e) {
-			System.out.println("oshibka fila chtenie");
+            return Files.readString(Paths.get(file), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
 		}
-		return fileString.toString();
 	}
 
 	public static void fileWriterBitSet(String encodedText, String outFile) {
@@ -217,12 +209,6 @@ public class Main {
             System.out.println("e");
         }
     }
-	public static void savetree (String filename, Node root){
-		trees.put(filename, root);
-	}
-	public static Node gettree (String filename){
-		return trees.get(filename);
-	}
 }
 
 // Huffman coding start
