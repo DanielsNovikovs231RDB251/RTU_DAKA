@@ -18,48 +18,109 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         String command;
-        String sourceFile, resultFile, firstFile, secondFile;
+        String sourceFile, resultFile, firstFile, secondFile, bufferFile = "temp.txt";
+        int algorithm;
 
         loop: while (true) {
-
-            command = sc.next();
+            try{
+                command = sc.next();
 
             switch (command) {
                 case "comp":
-                    // LZW encode start
-                    //System.out.println("LZW encode");
-                    //System.out.print("source file name: ");
-                    //sourceFile = sc.next();
-                    //System.out.print("archive name: ");
-                    //resultFile = sc.next();
-                    //compressLZW(sourceFile, resultFile);
-                    // LZW encode end
-                    // Huffman encode start
-                    System.out.println("Huffman encode");
-                    System.out.print("source file name: ");
-                    sourceFile = sc.next();
-                    System.out.print("archive name: ");
-                    resultFile = sc.next();
-                    compressHuffman(sourceFile, resultFile);
-                    // Huffman encode end
+                    System.out.println("Choose algorithm:");
+                    System.out.println("1 - Huffman");
+                    System.out.println("2 - LZW encode");
+                    System.out.println("3 - Huffman-LZW");
+                    System.out.println("4 - LZW-Huffman");
+                    algorithm = sc.nextInt();
+                    switch (algorithm) {
+                        case 1:
+                            
+                            System.out.println("Huffman encode");
+                            System.out.print("source file name: ");
+                            sourceFile = sc.next();
+                            System.out.print("archive name: ");
+                            resultFile = sc.next();
+                            compressHuffman(sourceFile, resultFile);
+                            break;
+                        case 2:
+                            System.out.println("LZW encode");
+                            System.out.print("source file name: ");
+                            sourceFile = sc.next();
+                            System.out.print("archive name: ");
+                            resultFile = sc.next();
+                            compressLZW(sourceFile, resultFile);
+                            break;
+
+                        case 3:
+                            System.out.println("Huffman-LZW encode");
+                            System.out.print("source file name: ");
+                            sourceFile = sc.next();
+                            System.out.print("archive name: ");
+                            resultFile = sc.next();
+                            compressHuffman(sourceFile, bufferFile);
+                            compressLZW(bufferFile, resultFile);
+                            break;
+                        case 4:
+                            System.out.println("LZW-Huffman encode");
+                            System.out.print("source file name: ");
+                            sourceFile = sc.next();
+                            System.out.print("archive name: ");
+                            resultFile = sc.next();
+                            compressLZW(sourceFile, bufferFile);
+                            compressHuffman(bufferFile, resultFile);
+
+                            break;
+                        default:
+                            break;
+                    }
                     break;
                 case "decomp":
-                    // LZW decode start
-                   // System.out.println("LZW decode");
-                    //System.out.print("archive name: ");
-                    //sourceFile = sc.next();
-                    //System.out.print("file name: ");
-                    //resultFile = sc.next();
-                    //decompressLZW(sourceFile, resultFile);
-                    // LZW decode end
-                    // Huffman decode start
-                    System.out.println("Huffman decode");
-                    System.out.print("archive name: ");
-                    sourceFile = sc.next();
-                    System.out.print("file name: ");
-                    resultFile = sc.next();
-                    decompressHuffman(sourceFile, resultFile);
-                    // Huffman decode end
+                    System.out.println("Choose algorithm:");
+                    System.out.println("1 - Huffman");
+                    System.out.println("2 - LZW encode");
+                    System.out.println("3 - Huffman-LZW");
+                    System.out.println("4 - LZW-Huffman");
+                    algorithm = sc.nextInt();
+                    switch (algorithm) {
+                        case 1:
+                            System.out.println("Huffman decode");
+                            System.out.print("archive name: ");
+                            sourceFile = sc.next();
+                            System.out.print("file name: ");
+                            resultFile = sc.next();
+                            decompressHuffman(sourceFile, resultFile);
+                            break;
+                        case 2:
+                            System.out.println("LZW decode");
+                            System.out.print("archive name: ");
+                            sourceFile = sc.next();
+                            System.out.print("file name: ");
+                            resultFile = sc.next();
+                            decompressLZW(sourceFile, resultFile);
+                            break;
+                        case 3:
+                            System.out.println("Huffman-LZW decode");
+                            System.out.print("archive name: ");
+                            sourceFile = sc.next();
+                            System.out.print("file name: ");
+                            resultFile = sc.next();
+                            decompressLZW(sourceFile, bufferFile);
+                            decompressHuffman(bufferFile, resultFile);
+                            break;
+                        case 4:
+                            System.out.println("LZW-Huffman decode");
+                            System.out.print("archive name: ");
+                            sourceFile = sc.next();
+                            System.out.print("file name: ");
+                            resultFile = sc.next();
+                            decompressHuffman(sourceFile, bufferFile);
+                            decompressLZW(bufferFile, resultFile);
+                            break;
+                        default:
+                            System.out.println("Wrong command");
+                            break;
+                    }
                     break;
                 case "size":
                     System.out.print("file name: ");
@@ -78,7 +139,16 @@ public class Main {
                     break;
                 case "exit":
                     break loop;
+                    default:
+                    System.out.println("Wrong command");
+                    break;
+                }
+
             }
+            catch(Exception e){
+                System.out.println(e.getMessage());
+            }
+            
         }
 
         sc.close();
@@ -223,7 +293,6 @@ public class Main {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        System.out.println(bitSequence.toString());
         return bitSequence.toString();
     }
 
