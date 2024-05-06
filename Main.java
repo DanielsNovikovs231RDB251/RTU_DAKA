@@ -10,6 +10,7 @@ import java.util.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.io.File;
 
 public class Main {
 
@@ -19,23 +20,23 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         String command;
         String sourceFile, resultFile, firstFile, secondFile, bufferFile = "temp.txt";
+        File tempFile;
         int algorithm;
 
         loop: while (true) {
+            System.out.println("Choose command");
+            System.out.println("comp, decomp, size, equal, about, exit.");
             try{
                 command = sc.next();
-
             switch (command) {
                 case "comp":
                     System.out.println("Choose algorithm:");
                     System.out.println("1 - Huffman");
                     System.out.println("2 - LZW encode");
                     System.out.println("3 - Huffman-LZW");
-                    System.out.println("4 - LZW-Huffman");
                     algorithm = sc.nextInt();
                     switch (algorithm) {
                         case 1:
-                            
                             System.out.println("Huffman encode");
                             System.out.print("source file name: ");
                             sourceFile = sc.next();
@@ -60,16 +61,8 @@ public class Main {
                             resultFile = sc.next();
                             compressHuffman(sourceFile, bufferFile);
                             compressLZW(bufferFile, resultFile);
-                            break;
-                        case 4:
-                            System.out.println("LZW-Huffman encode");
-                            System.out.print("source file name: ");
-                            sourceFile = sc.next();
-                            System.out.print("archive name: ");
-                            resultFile = sc.next();
-                            compressLZW(sourceFile, bufferFile);
-                            compressHuffman(bufferFile, resultFile);
-
+                            tempFile = new File(bufferFile);
+                            tempFile.delete();
                             break;
                         default:
                             break;
@@ -80,7 +73,6 @@ public class Main {
                     System.out.println("1 - Huffman");
                     System.out.println("2 - LZW encode");
                     System.out.println("3 - Huffman-LZW");
-                    System.out.println("4 - LZW-Huffman");
                     algorithm = sc.nextInt();
                     switch (algorithm) {
                         case 1:
@@ -107,15 +99,8 @@ public class Main {
                             resultFile = sc.next();
                             decompressLZW(sourceFile, bufferFile);
                             decompressHuffman(bufferFile, resultFile);
-                            break;
-                        case 4:
-                            System.out.println("LZW-Huffman decode");
-                            System.out.print("archive name: ");
-                            sourceFile = sc.next();
-                            System.out.print("file name: ");
-                            resultFile = sc.next();
-                            decompressHuffman(sourceFile, bufferFile);
-                            decompressLZW(bufferFile, resultFile);
+                            tempFile = new File(bufferFile);
+                            tempFile.delete();
                             break;
                         default:
                             System.out.println("Wrong command");
@@ -155,21 +140,36 @@ public class Main {
     }
 
     public static void compressHuffman(String sourceFile, String resultFile) {
-        String fileData = fileReader(sourceFile);
-        EncodedData encodedData = HuffmanEncoder.encode(fileData);
-        encodedText = encodedData.getEncodedText();
-        Map<Character, String> codeTable = encodedData.getCodeTable();
-        CodeTableManager.saveCodeTable(resultFile, codeTable);
-        fileWriterBitSet(encodedText, resultFile);
-        int numBitsToRead = encodedText.length();
-        FileManager.saveFileData(resultFile, numBitsToRead);
+        try{
+            String fileData = fileReader(sourceFile);
+            if (fileData == null){
+                System.out.println("Error file path by Huffman");
+                return;
+            }
+            EncodedData encodedData = HuffmanEncoder.encode(fileData);
+            encodedText = encodedData.getEncodedText();
+            Map<Character, String> codeTable = encodedData.getCodeTable();
+            CodeTableManager.saveCodeTable(resultFile, codeTable);
+            fileWriterBitSet(encodedText, resultFile);
+            int numBitsToRead = encodedText.length();
+            FileManager.saveFileData(resultFile, numBitsToRead);
+            System.out.println("File successful compressed!");
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+        }
     }
+        
 
     public static void decompressHuffman(String sourceFile, String resultFile) {
         String text = readBitFile(sourceFile);
+        if (text == null){
+            return;
+        }
         Map<Character, String> retrievedCodeTable = CodeTableManager.getCodeTable(sourceFile);
         String decodedText = HuffmanEncoder.decode(text, retrievedCodeTable);
         fileWriterText(decodedText, resultFile);
+        System.out.println("File successful decompressed!");
     }
 
     public static void compressLZW(String sourceFile, String resultFile) {
@@ -200,8 +200,10 @@ public class Main {
             }
             in.close();
             out.close();
+            System.out.println("File successful compressed!");
+            
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error file path by LZW");
         }
     }
 
@@ -223,8 +225,9 @@ public class Main {
             out.write(decdat);
             in.close();
             out.close();
+            System.out.println("File successful decompressed!");
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error file path by LZW");
         }
     }
 
@@ -291,7 +294,9 @@ public class Main {
             }
             fis.close();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error file path by Huffman");
+            return null;
+
         }
         return bitSequence.toString();
     }
@@ -300,7 +305,6 @@ public class Main {
         try {
             return Files.readString(Paths.get(file), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            e.printStackTrace();
             return null;
         }
     }
