@@ -21,7 +21,7 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         String command;
-        String galvfail, izejfail, pirmfail, otrfail;
+        String sourceFile, resultFile, firstFile, secondFile;
 
         loop: while (true) {
 
@@ -33,14 +33,14 @@ public class Main {
                     galvfail = sc.next();
                     System.out.print("archive name: ");
                     izejfail = sc.next();
-                    compress(galvfail, izejfail);
+                    compress(sourceFile, resultFile);
                     break;
                 case "decomp":
                     System.out.print("archive name: ");
                     galvfail = sc.next();
                     System.out.print("file name: ");
                     izejfail = sc.next();
-                    decompress(galvfail, izejfail);
+                    decompress(sourceFile, resultFile);
                     break;
                 case "size":
                     System.out.print("file name: ");
@@ -52,7 +52,7 @@ public class Main {
                     pirmfail = sc.next();
                     System.out.print("second file name: ");
                     otrfail = sc.next();
-                    System.out.println(equal(pirmfail, otrfail));
+                    System.out.println(equal(sourceFile, resultFile));
                     break;
                 case "about":
                     about();
@@ -158,30 +158,12 @@ public class Main {
             return false;
         }
     }
-	public static void saveHuffmanTree(Node root, String fileName)  {
-        try {
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName));
-            oos.writeObject(root);
-            oos.close();
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-    }
-	public static Node loadHuffmanTree(String fileName)  {
-        try {
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName));
-            return (Node) ois.readObject();
-        }catch (Exception e){
-            System.out.println("1");
-        }
-        return null;
-    }
 
 	public static void about() {
         System.out.println("231RDB251 Daniels Novikovs");
         System.out.println("231RDB335 Kirills Bogdanovs");
-        System.out.println("231RDB295 Antons Denisovs")
-        System.out.println("231RDB273 Anastasija Praksina")
+        System.out.println("231RDB295 Antons Denisovs");
+        System.out.println("231RDB273 Anastasija Praksina");
     }
 	public static String readBitFile(String fileName){
         StringBuilder bitSequence = new StringBuilder();
@@ -196,7 +178,7 @@ public class Main {
             }
             fis.close();
         }catch (Exception e){
-            System.out.println("er1");
+            System.out.println(e.getMessage());
         }
         return bitSequence.toString();
     }
@@ -240,7 +222,7 @@ public class Main {
             fos.write(text.getBytes());
             fos.close();
         }catch (Exception e){
-            System.out.println("e");
+            System.out.println(e.getMessage());
         }
     }
 }
