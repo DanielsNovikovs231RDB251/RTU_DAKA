@@ -29,30 +29,36 @@ public class Main {
 
             switch (command) {
                 case "comp":
+                    // LZW encode start
+                    System.out.println("LZW encode");
                     System.out.print("source file name: ");
-                    galvfail = sc.next();
+                    sourceFile = sc.next();
                     System.out.print("archive name: ");
-                    izejfail = sc.next();
+                    resultFile = sc.next();
                     compress(sourceFile, resultFile);
+                    // LZW encode end
                     break;
                 case "decomp":
+                    // LZW decode start
+                    System.out.println("LZW decode");
                     System.out.print("archive name: ");
-                    galvfail = sc.next();
+                    sourceFile = sc.next();
                     System.out.print("file name: ");
-                    izejfail = sc.next();
+                    resultFile = sc.next();
                     decompress(sourceFile, resultFile);
+                    // LZW decode end
                     break;
                 case "size":
                     System.out.print("file name: ");
-                    galvfail = sc.next();
-                    filesize(galvfail);
+                    sourceFile = sc.next();
+                    filesize(sourceFile);
                     break;
                 case "equal":
                     System.out.print("first file name: ");
-                    pirmfail = sc.next();
+                    firstFile = sc.next();
                     System.out.print("second file name: ");
-                    otrfail = sc.next();
-                    System.out.println(equal(sourceFile, resultFile));
+                    secondFile = sc.next();
+                    System.out.println(equal(firstFile, secondFile));
                     break;
                 case "about":
                     about();
@@ -66,9 +72,10 @@ public class Main {
     }
 
 
-	public static void compress(String galvfail, String izejfail) {
-        try (FileInputStream in = new FileInputStream(galvfail);
-                FileOutputStream out = new FileOutputStream(izejfail)) {
+	public static void compress(String sourceFile, String resultFile) {
+        try {
+            FileInputStream in = new FileInputStream(sourceFile);
+                FileOutputStream out = new FileOutputStream(resultFile);
 
             byte[] bfr = new byte[1024];
             int bread;
@@ -91,14 +98,17 @@ public class Main {
                 out.write((code >> 8) & 0xFF); 
                 out.write(code & 0xFF); 
             }
+            in.close();
+            out.close();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
-	public static void decompress(String galvfail, String izejfail) {
-        try (FileInputStream in = new FileInputStream(galvfail);
-                FileOutputStream out = new FileOutputStream(izejfail)) {
+	public static void decompress(String sourceFile, String resultFile) {
+        try {
+            FileInputStream in = new FileInputStream(sourceFile);
+                FileOutputStream out = new FileOutputStream(resultFile);
 
             List<Integer> encdat = new ArrayList<>();
             int b;
@@ -111,6 +121,8 @@ public class Main {
             byte[] decdat = LZWDict.decoder(encdat);
 
             out.write(decdat);
+            in.close();
+            out.close();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -126,10 +138,10 @@ public class Main {
         }
     }
 
-	public static boolean equal(String galvfail, String izejfail) {
+	public static boolean equal(String sourceFile, String resultFile) {
         try {
-            FileInputStream fil1 = new FileInputStream(galvfail);
-            FileInputStream fil2 = new FileInputStream(izejfail);
+            FileInputStream fil1 = new FileInputStream(sourceFile);
+            FileInputStream fil2 = new FileInputStream(resultFile);
             int b1, b2;
             byte[] bfr1 = new byte[1000];
             byte[] bfr2 = new byte[1000];
